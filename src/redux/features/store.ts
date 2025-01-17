@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./auth/authSlice";
-import baseApi from "../api/baseApi";
+import {baseApi} from "../api/baseApi";
 import {
   persistStore,
   persistReducer,
@@ -18,6 +18,7 @@ const persistConfig = {
   storage,
 };
 
+// Create a persisted reducer
 const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 
 export const store = configureStore({
@@ -26,13 +27,14 @@ export const store = configureStore({
     auth: persistedAuthReducer,
   },
 
+  // solving error of non-serialized values
   // Adding the api middleware enables caching, invalidation, polling,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-        serializableCheck: {
-          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        },
-      }).concat(baseApi.middleware),
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }).concat(baseApi.middleware),
 });
 
 // Infer the `RootState`,  `AppDispatch`, and `AppStore` types from the store itself
@@ -41,4 +43,4 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export type AppStore = typeof store;
 
-export const persistor = persistStore(store);
+export const persistor = persistStore(store); //  WRAP in main.tsx with PersistGate
